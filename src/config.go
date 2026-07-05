@@ -52,10 +52,11 @@ func loadConfig() (config, error) {
 
 	otlpEndpoint := strings.TrimSpace(os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT"))
 	if otlpEndpoint == "" {
-		otlpEndpoint = "localhost:4317"
+		otlpEndpoint = "http://localhost:4318/v1/metrics"
 	}
-	otlpEndpoint = strings.TrimPrefix(otlpEndpoint, "http://")
-	otlpEndpoint = strings.TrimPrefix(otlpEndpoint, "https://")
+	if !strings.HasPrefix(otlpEndpoint, "http://") && !strings.HasPrefix(otlpEndpoint, "https://") {
+		otlpEndpoint = "http://" + otlpEndpoint
+	}
 
 	insecure, err := strconv.ParseBool(defaultString(os.Getenv("OTEL_EXPORTER_OTLP_INSECURE"), "true"))
 	if err != nil {

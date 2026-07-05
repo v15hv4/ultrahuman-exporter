@@ -3,13 +3,13 @@ package main
 import (
 	"context"
 
-	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 )
 
-func newOTLPExporter(ctx context.Context, cfg config) (*otlpmetricgrpc.Exporter, error) {
-	opts := []otlpmetricgrpc.Option{otlpmetricgrpc.WithEndpoint(cfg.OTLPEndpoint)}
+func newOTLPExporter(ctx context.Context, cfg config) (*otlpmetrichttp.Exporter, error) {
+	opts := []otlpmetrichttp.Option{otlpmetrichttp.WithEndpointURL(cfg.OTLPEndpoint)}
 	if cfg.OTLPInsecure {
-		opts = append(opts, otlpmetricgrpc.WithInsecure())
+		opts = append(opts, otlpmetrichttp.WithInsecure())
 	}
-	return otlpmetricgrpc.New(ctx, opts...)
+	return otlpmetrichttp.New(ctx, opts...)
 }

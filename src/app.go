@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 )
 
@@ -15,7 +15,7 @@ type app struct {
 	cfg      config
 	db       *sql.DB
 	client   *http.Client
-	exporter *otlpmetricgrpc.Exporter
+	exporter sdkmetric.Exporter
 	resource *resource.Resource
 	stats    exporterStats
 }

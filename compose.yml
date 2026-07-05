@@ -29,6 +29,7 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
       - ./.data/grafana:/var/lib/grafana
+      - ./extra/grafana/provisioning:/etc/grafana/provisioning
 
     deploy:
       resources:

@@ -12,6 +12,7 @@ import (
 const (
 	defaultAPIURL       = "https://partner.ultrahuman.com/api/v1/partner/daily_metrics"
 	defaultPollInterval = 5 * time.Minute
+	defaultFetchWindow  = 24 * time.Hour
 	defaultDBPath       = "ultrahuman-exporter.db"
 	serviceName         = "ultrahuman-exporter"
 )
@@ -20,6 +21,7 @@ type config struct {
 	APIKey       string
 	APIURL       string
 	PollInterval time.Duration
+	FetchWindow  time.Duration
 	DBPath       string
 	OTLPEndpoint string
 	OTLPInsecure bool
@@ -45,6 +47,18 @@ func loadConfig() (config, error) {
 		apiURL = defaultAPIURL
 	}
 
+	fetchWindow := defaultFetchWindow
+	if raw := strings.TrimSpace(os.Getenv("UH_FETCH_WINDOW")); raw != "" {
+		parsed, err := time.ParseDuration(raw)
+		if err != nil {
+			return config{}, fmt.Errorf("invalid UH_FETCH_WINDOW: %w", err)
+		}
+		if parsed < time.Second {
+			return config{}, errors.New("UH_FETCH_WINDOW must be at least 1s")
+		}
+		fetchWindow = parsed
+	}
+
 	dbPath := strings.TrimSpace(os.Getenv("UH_DB_PATH"))
 	if dbPath == "" {
 		dbPath = defaultDBPath
@@ -67,6 +81,7 @@ func loadConfig() (config, error) {
 		APIKey:       apiKey,
 		APIURL:       apiURL,
 		PollInterval: interval,
+		FetchWindow:  fetchWindow,
 		DBPath:       dbPath,
 		OTLPEndpoint: otlpEndpoint,
 		OTLPInsecure: insecure,

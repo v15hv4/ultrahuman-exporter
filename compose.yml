@@ -1,0 +1,66 @@
+services:
+  ultrahuman-exporter:
+    build: .
+    image: ultrahuman-exporter:local
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      UH_DB_PATH: /data/ultrahuman-exporter.db
+      OTEL_EXPORTER_OTLP_ENDPOINT: victoria-metrics:8428/opentelemetry/v1/metrics
+      OTEL_EXPORTER_OTLP_INSECURE: "true"
+    volumes:
+      - ./.uhex-data/uhex:/data
+    deploy:
+      resources:
+        reservations:
+          cpus: '0.0001'
+          memory: 64M
+        limits:
+          cpus: '0.01'
+          memory: 128M
+
+  grafana:
+    image: grafana/grafana:13.1.0-slim
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    env_file: .env
+    environment:
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./.grafana-data:/var/lib/grafana
+
+    deploy:
+      resources:
+        reservations:
+          cpus: '0.001'
+          memory: 64M
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+    profiles:
+      - full
+
+  victoria-metrics:
+    image: victoriametrics/victoria-metrics:v1.146.0
+    restart: unless-stopped
+    ports:
+      - 8428:8428
+    volumes:
+      - ./.vm-data:/victoria-metrics-data
+    command:
+      - "--storageDataPath=/victoria-metrics-data"
+      - "--retentionPeriod=1"
+
+    deploy:
+      resources:
+        reservations:
+          cpus: '0.001'
+          memory: 64M
+        limits:
+          cpus: '0.25'
+          memory: 512M
+
+    profiles:
+      - full

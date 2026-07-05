@@ -16,7 +16,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 
 FROM alpine:3.22
 
-RUN apk add --no-cache ca-certificates sqlite-libs
+RUN apk add --no-cache ca-certificates sqlite-libs tzdata
 
 WORKDIR /app
 COPY --from=builder /out/ultrahuman-exporter /usr/local/bin/ultrahuman-exporter

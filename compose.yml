@@ -9,7 +9,7 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: victoria-metrics:8428/opentelemetry/v1/metrics
       OTEL_EXPORTER_OTLP_INSECURE: "true"
     volumes:
-      - ./.data/uhex/uhex:/data
+      - uhex-data:/data
     deploy:
       resources:
         reservations:
@@ -28,7 +28,7 @@ services:
     environment:
       - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
-      - ./.data/grafana:/var/lib/grafana
+      - grafana-data:/var/lib/grafana
       - ./extra/grafana/provisioning:/etc/grafana/provisioning
 
     deploy:
@@ -49,7 +49,7 @@ services:
     ports:
       - 8428:8428
     volumes:
-      - ./.data/vm:/victoria-metrics-data
+      - vm-data:/victoria-metrics-data
     command:
       - "--storageDataPath=/victoria-metrics-data"
       - "--retentionPeriod=1"
@@ -65,3 +65,8 @@ services:
 
     profiles:
       - full
+
+volumes:
+  uhex-data:
+  grafana-data:
+  vm-data:

@@ -4,14 +4,30 @@
   "tags": ["ultrahuman", "health"],
   "timezone": "browser",
   "schemaVersion": 39,
+  "editable": true,
+  "liveNow": false,
   "refresh": "5m",
   "time": { "from": "now-1h", "to": "now" },
+  "timepicker": { "refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h", "2h", "1d"] },
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
   "panels": [
     {
       "id": 1,
       "title": "Recovery Index",
       "type": "stat",
-      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 6 },
       "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
       "fieldConfig": {
         "defaults": {
@@ -27,41 +43,17 @@
           "max": 100,
           "min": 0,
           "unit": "percent"
-        }
+        },
+        "overrides": []
       },
-      "options": { "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "targets": [{ "expr": "uh_recovery_index", "legendFormat": "Recovery" }]
-    },
-    {
-      "id": 2,
-      "title": "Sleep Efficiency",
-      "type": "stat",
-      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
-      "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "red", "value": null },
-              { "color": "yellow", "value": 75 },
-              { "color": "green", "value": 85 }
-            ]
-          },
-          "max": 100,
-          "min": 0,
-          "unit": "percent"
-        }
-      },
-      "options": { "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "targets": [{ "expr": "uh_sleep_efficiency_percent", "legendFormat": "Efficiency" }]
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } },
+      "targets": [{ "expr": "sum(avg_over_time(uh_recovery_index[24h]))", "legendFormat": "Recovery", "range": true, "refId": "A" }]
     },
     {
       "id": 3,
       "title": "Morning Alertness",
       "type": "stat",
-      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 6 },
       "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
       "fieldConfig": {
         "defaults": {
@@ -77,16 +69,44 @@
           "max": 100,
           "min": 0,
           "unit": "percent"
-        }
+        },
+        "overrides": []
       },
-      "options": { "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "targets": [{ "expr": "uh_morning_alertness", "legendFormat": "Alertness" }]
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } },
+      "targets": [{ "expr": "sum(avg_over_time(uh_morning_alertness[24h]))", "legendFormat": "Alertness", "range": true, "refId": "A" }]
+    },
+    {
+      "id": 13,
+      "title": "Skin Temperature",
+      "type": "stat",
+      "gridPos": { "x": 12, "y": 0, "w": 4, "h": 6 },
+      "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "light-blue", "value": null },
+              { "color": "green", "value": 32 },
+              { "color": "#EAB839", "value": 37 },
+              { "color": "red", "value": 40 }
+            ]
+          },
+          "max": 100,
+          "min": 0,
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } },
+      "targets": [{ "expr": "sum(avg_over_time(uh_skin_temperature_celsius[30m]))", "legendFormat": "Temp", "range": true, "refId": "A" }]
     },
     {
       "id": 4,
       "title": "Resting Heart Rate",
       "type": "stat",
-      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+      "gridPos": { "x": 16, "y": 0, "w": 4, "h": 6 },
       "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
       "fieldConfig": {
         "defaults": {
@@ -99,144 +119,19 @@
               { "color": "red", "value": 80 }
             ]
           },
+          "min": 0,
           "unit": "bpm"
-        }
-      },
-      "options": { "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "targets": [{ "expr": "uh_resting_heart_rate_bpm", "legendFormat": "RHR" }]
-    },
-    {
-      "id": 5,
-      "title": "Heart Rate",
-      "type": "timeseries",
-      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "unit": "bpm",
-          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10, "pointSize": 3, "showPoints": "auto" }
-        }
-      },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
-      "targets": [
-        { "expr": "uh_heart_rate_bpm", "legendFormat": "Heart Rate" },
-        { "expr": "uh_resting_heart_rate_bpm", "legendFormat": "Resting HR" }
-      ]
-    },
-    {
-      "id": 6,
-      "title": "Heart Rate Variability",
-      "type": "timeseries",
-      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "unit": "ms",
-          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10, "pointSize": 3, "showPoints": "auto" }
-        }
-      },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
-      "targets": [
-        { "expr": "uh_hrv_ms", "legendFormat": "HRV" },
-        { "expr": "uh_avg_sleep_hrv_ms", "legendFormat": "Avg Sleep HRV" }
-      ]
-    },
-    {
-      "id": 7,
-      "title": "Sleep Breakdown",
-      "type": "timeseries",
-      "gridPos": { "x": 0, "y": 12, "w": 12, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "unit": "m",
-          "custom": { "drawStyle": "bars", "lineWidth": 0, "fillOpacity": 80, "stacking": { "mode": "normal" } }
         },
-        "overrides": [
-          { "matcher": { "id": "byName", "options": "Deep" }, "properties": [{ "id": "color", "value": { "fixedColor": "dark-blue", "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "Light" }, "properties": [{ "id": "color", "value": { "fixedColor": "light-blue", "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "REM" }, "properties": [{ "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } }] }
-        ]
+        "overrides": []
       },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
-      "targets": [
-        { "expr": "uh_deep_sleep_minutes", "legendFormat": "Deep" },
-        { "expr": "uh_light_sleep_minutes", "legendFormat": "Light" },
-        { "expr": "uh_rem_sleep_minutes", "legendFormat": "REM" }
-      ]
-    },
-    {
-      "id": 8,
-      "title": "Total Sleep",
-      "type": "timeseries",
-      "gridPos": { "x": 12, "y": 12, "w": 12, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "fixedColor": "blue", "mode": "fixed" },
-          "unit": "m",
-          "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 20, "pointSize": 5, "showPoints": "always" }
-        }
-      },
-      "options": { "legend": { "displayMode": "hidden" } },
-      "targets": [{ "expr": "uh_total_sleep_minutes", "legendFormat": "Total Sleep" }]
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["mean"], "fields": "", "values": false } },
+      "targets": [{ "expr": "sum(avg_over_time(uh_resting_heart_rate_bpm[24h]))", "legendFormat": "RHR", "range": true, "refId": "A" }]
     },
     {
       "id": 9,
       "title": "Steps",
-      "type": "timeseries",
-      "gridPos": { "x": 0, "y": 20, "w": 8, "h": 6 },
-      "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "fixedColor": "green", "mode": "fixed" },
-          "unit": "short",
-          "custom": { "drawStyle": "bars", "lineWidth": 0, "fillOpacity": 80 }
-        }
-      },
-      "options": { "legend": { "displayMode": "hidden" } },
-      "targets": [{ "expr": "increase(uh_steps_total[1d])", "legendFormat": "Steps" }]
-    },
-    {
-      "id": 10,
-      "title": "Active Minutes",
-      "type": "timeseries",
-      "gridPos": { "x": 8, "y": 20, "w": 8, "h": 6 },
-      "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "fixedColor": "orange", "mode": "fixed" },
-          "unit": "m",
-          "custom": { "drawStyle": "bars", "lineWidth": 0, "fillOpacity": 80 }
-        }
-      },
-      "options": { "legend": { "displayMode": "hidden" } },
-      "targets": [{ "expr": "uh_active_minutes", "legendFormat": "Active" }]
-    },
-    {
-      "id": 11,
-      "title": "Movement Index",
-      "type": "timeseries",
-      "gridPos": { "x": 16, "y": 20, "w": 8, "h": 6 },
-      "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "fixedColor": "yellow", "mode": "fixed" },
-          "unit": "short",
-          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 20, "pointSize": 3, "showPoints": "auto" }
-        }
-      },
-      "options": { "legend": { "displayMode": "hidden" } },
-      "targets": [{ "expr": "uh_movement_index", "legendFormat": "Movement Index" }]
-    },
-    {
-      "id": 12,
-      "title": "SpO2",
-      "type": "timeseries",
-      "gridPos": { "x": 0, "y": 26, "w": 12, "h": 6 },
+      "type": "stat",
+      "gridPos": { "x": 20, "y": 0, "w": 4, "h": 6 },
       "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
       "fieldConfig": {
         "defaults": {
@@ -245,86 +140,224 @@
             "mode": "absolute",
             "steps": [
               { "color": "red", "value": null },
-              { "color": "yellow", "value": 90 },
-              { "color": "green", "value": 95 }
+              { "color": "yellow", "value": 4000 },
+              { "color": "green", "value": 8000 }
             ]
           },
-          "unit": "percent",
-          "min": 80,
-          "max": 100,
-          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 20, "pointSize": 3, "showPoints": "auto" }
-        }
+          "min": 0,
+          "unit": "short"
+        },
+        "overrides": []
       },
-      "options": { "legend": { "displayMode": "hidden" } },
-      "targets": [{ "expr": "uh_spo2_percent", "legendFormat": "SpO2" }]
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false } },
+      "targets": [{ "expr": "sum(uh_steps_total)", "legendFormat": "Steps", "range": true, "refId": "A" }]
     },
     {
-      "id": 13,
-      "title": "Skin Temperature",
+      "id": 5,
+      "title": "Heart Rate",
       "type": "timeseries",
-      "gridPos": { "x": 12, "y": 26, "w": 12, "h": 6 },
+      "gridPos": { "x": 0, "y": 6, "w": 12, "h": 9 },
       "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
       "fieldConfig": {
         "defaults": {
-          "color": { "fixedColor": "red", "mode": "fixed" },
-          "unit": "celsius",
-          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 20, "pointSize": 3, "showPoints": "auto" }
-        }
+          "color": { "mode": "thresholds", "seriesBy": "last" },
+          "unit": "bpm",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "#EAB839", "value": 100 },
+              { "color": "red", "value": 150 }
+            ]
+          },
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 27, "gradientMode": "scheme", "lineInterpolation": "linear", "lineStyle": { "fill": "solid" }, "pointSize": 3, "showPoints": "auto", "spanNulls": true, "stacking": { "group": "A", "mode": "none" } }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "RHR" },
+            "properties": [
+              { "id": "color", "value": { "fixedColor": "text", "mode": "fixed" } },
+              { "id": "custom.fillOpacity", "value": 0 },
+              { "id": "custom.lineStyle", "value": { "dash": [10, 10], "fill": "dash" } }
+            ]
+          }
+        ]
       },
-      "options": { "legend": { "displayMode": "hidden" } },
-      "targets": [{ "expr": "uh_skin_temperature_celsius", "legendFormat": "Temp" }]
+      "options": { "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single", "sort": "none" } },
+      "targets": [
+        { "expr": "avg(uh_heart_rate_bpm)", "legendFormat": "HR", "range": true, "refId": "A" },
+        { "expr": "sum(avg_over_time(uh_resting_heart_rate_bpm[24h]))", "legendFormat": "RHR", "range": true, "refId": "B" }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Heart Rate Variability",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 6, "w": 12, "h": 9 },
+      "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "ms",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 80 }] },
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10, "gradientMode": "none", "lineInterpolation": "linear", "pointSize": 3, "showPoints": "auto", "spanNulls": true, "stacking": { "group": "A", "mode": "none" } }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Avg Sleep HRV" },
+            "properties": [
+              { "id": "custom.fillOpacity", "value": 0 },
+              { "id": "custom.lineStyle", "value": { "dash": [10, 10], "fill": "dash" } },
+              { "id": "color", "value": { "fixedColor": "text", "mode": "fixed" } }
+            ]
+          }
+        ]
+      },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single", "sort": "none" } },
+      "targets": [
+        { "expr": "sum(uh_hrv_ms)", "legendFormat": "HRV", "range": true, "refId": "A" },
+        { "expr": "sum(avg_over_time(uh_avg_sleep_hrv_ms[24h]))", "legendFormat": "Avg Sleep HRV", "range": true, "refId": "B" }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Sleep Breakdown",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 15, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "m",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 80 }] },
+          "custom": { "drawStyle": "bars", "lineWidth": 0, "fillOpacity": 80, "gradientMode": "none", "lineInterpolation": "linear", "pointSize": 5, "showPoints": "auto", "spanNulls": false, "stacking": { "group": "A", "mode": "normal" } }
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Deep" }, "properties": [{ "id": "color", "value": { "fixedColor": "dark-blue", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Light" }, "properties": [{ "id": "color", "value": { "fixedColor": "light-blue", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "REM" }, "properties": [{ "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } }] }
+        ]
+      },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single", "sort": "none" } },
+      "targets": [
+        { "expr": "uh_deep_sleep_minutes", "legendFormat": "Deep", "range": true, "refId": "A" },
+        { "expr": "uh_light_sleep_minutes", "legendFormat": "Light", "refId": "B" },
+        { "expr": "uh_rem_sleep_minutes", "legendFormat": "REM", "refId": "C" }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Total Sleep",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 15, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "blue", "mode": "fixed" },
+          "unit": "m",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 80 }] },
+          "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 20, "gradientMode": "none", "lineInterpolation": "linear", "pointSize": 5, "showPoints": "always", "spanNulls": false, "stacking": { "group": "A", "mode": "none" } }
+        },
+        "overrides": []
+      },
+      "options": { "legend": { "displayMode": "hidden", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single", "sort": "none" } },
+      "targets": [{ "expr": "uh_total_sleep_minutes", "legendFormat": "Total Sleep", "refId": "A" }]
+    },
+    {
+      "id": 12,
+      "title": "SpO2",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 23, "w": 8, "h": 6 },
+      "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "yellow", "value": 90 }, { "color": "green", "value": 95 }] },
+          "unit": "percent",
+          "min": 80,
+          "max": 100,
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 20, "gradientMode": "none", "lineInterpolation": "linear", "pointSize": 3, "showPoints": "auto", "spanNulls": false, "stacking": { "group": "A", "mode": "none" } }
+        },
+        "overrides": []
+      },
+      "options": { "legend": { "displayMode": "hidden", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single", "sort": "none" } },
+      "targets": [{ "expr": "uh_spo2_percent", "legendFormat": "SpO2", "refId": "A" }]
+    },
+    {
+      "id": 10,
+      "title": "Active Minutes",
+      "type": "timeseries",
+      "gridPos": { "x": 8, "y": 23, "w": 8, "h": 6 },
+      "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "orange", "mode": "fixed" },
+          "unit": "m",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 80 }] },
+          "custom": { "drawStyle": "bars", "lineWidth": 0, "fillOpacity": 80, "gradientMode": "none", "lineInterpolation": "linear", "pointSize": 5, "showPoints": "auto", "spanNulls": false, "stacking": { "group": "A", "mode": "none" } }
+        },
+        "overrides": []
+      },
+      "options": { "legend": { "displayMode": "hidden", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single", "sort": "none" } },
+      "targets": [{ "expr": "uh_active_minutes", "legendFormat": "Active", "refId": "A" }]
+    },
+    {
+      "id": 11,
+      "title": "Movement Index",
+      "type": "timeseries",
+      "gridPos": { "x": 16, "y": 23, "w": 8, "h": 6 },
+      "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "yellow", "mode": "fixed" },
+          "unit": "short",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 80 }] },
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 20, "gradientMode": "none", "lineInterpolation": "linear", "pointSize": 3, "showPoints": "auto", "spanNulls": false, "stacking": { "group": "A", "mode": "none" } }
+        },
+        "overrides": []
+      },
+      "options": { "legend": { "displayMode": "hidden", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single", "sort": "none" } },
+      "targets": [{ "expr": "uh_movement_index", "legendFormat": "Movement Index", "refId": "A" }]
     },
     {
       "id": 14,
       "title": "Exporter: API Requests",
       "type": "stat",
-      "gridPos": { "x": 0, "y": 32, "w": 6, "h": 3 },
+      "gridPos": { "x": 0, "y": 29, "w": 6, "h": 3 },
       "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
-      "fieldConfig": { "defaults": { "unit": "short" } },
-      "options": { "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "targets": [{ "expr": "uhex_api_requests_total", "legendFormat": "Requests" }]
+      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 80 }] }, "unit": "short" }, "overrides": [] },
+      "options": { "colorMode": "value", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } },
+      "targets": [{ "expr": "uhex_api_requests_total", "legendFormat": "Requests", "refId": "A" }]
     },
     {
       "id": 15,
       "title": "Exporter: Metrics Exported",
       "type": "stat",
-      "gridPos": { "x": 6, "y": 32, "w": 6, "h": 3 },
+      "gridPos": { "x": 6, "y": 29, "w": 6, "h": 3 },
       "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
-      "fieldConfig": { "defaults": { "unit": "short" } },
-      "options": { "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "targets": [{ "expr": "uhex_metrics_exported_total", "legendFormat": "Exported" }]
+      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 80 }] }, "unit": "short" }, "overrides": [] },
+      "options": { "colorMode": "value", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } },
+      "targets": [{ "expr": "uhex_metrics_exported_total", "legendFormat": "Exported", "refId": "A" }]
     },
     {
       "id": 16,
       "title": "Exporter: Last Success",
       "type": "stat",
-      "gridPos": { "x": 12, "y": 32, "w": 6, "h": 3 },
+      "gridPos": { "x": 12, "y": 29, "w": 6, "h": 3 },
       "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
-      "fieldConfig": { "defaults": { "unit": "dateTimeFromNow" } },
-      "options": { "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "targets": [{ "expr": "uhex_last_success_timestamp * 1000", "legendFormat": "Last Success" }]
+      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 80 }] }, "unit": "dateTimeFromNow" }, "overrides": [] },
+      "options": { "colorMode": "value", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } },
+      "targets": [{ "expr": "uhex_last_success_timestamp * 1000", "legendFormat": "Last Success", "refId": "A" }]
     },
     {
       "id": 17,
       "title": "Exporter: Errors",
       "type": "stat",
-      "gridPos": { "x": 18, "y": 32, "w": 6, "h": 3 },
+      "gridPos": { "x": 18, "y": 29, "w": 6, "h": 3 },
       "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": { "mode": "thresholds" },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "red", "value": 1 }
-            ]
-          }
-        }
-      },
-      "options": { "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "targets": [{ "expr": "uhex_errors_total", "legendFormat": "Errors" }]
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }, "unit": "short" }, "overrides": [] },
+      "options": { "colorMode": "value", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } },
+      "targets": [{ "expr": "uhex_errors_total", "legendFormat": "Errors", "refId": "A" }]
     }
   ],
   "templating": {
